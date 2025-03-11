@@ -1,20 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hydrated_bloc/hydrated_bloc.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:uuid/uuid.dart';
-
 import 'controller/cubit/counter_cubit.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  HydratedBloc.storage = await HydratedStorage.build(
-    storageDirectory:
-        HydratedStorageDirectory((await getTemporaryDirectory()).path),
-  );
-
+void main() {
   runApp(const MyApp());
 }
 
@@ -41,7 +29,13 @@ class CounterPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Cubit Counter App')),
       body: Center(
-        child: BlocBuilder<CounterCubit, CounterState>(
+        child: BlocConsumer<CounterCubit, CounterState>(
+          listener: (context, state) {
+            if (state.counter == 5) {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text('equel 5')));
+            }
+          },
           builder: (context, state) {
             return Text(
               '${state.counter}',

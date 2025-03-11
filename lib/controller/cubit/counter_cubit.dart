@@ -1,10 +1,9 @@
-import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'counter_state.dart';
 
-class CounterCubit extends HydratedCubit<CounterState> {
+class CounterCubit extends Cubit<CounterState> {
   CounterCubit() : super(CounterInitial());
 
   void increment() {
@@ -13,15 +12,5 @@ class CounterCubit extends HydratedCubit<CounterState> {
 
   void decrement() {
     emit(CounterUpdated(state.counter - 1));
-  }
-
-  @override
-  CounterState? fromJson(Map<String, dynamic> json) {
-    return CounterUpdated(json['count']);
-  }
-
-  @override
-  Map<String, dynamic>? toJson(CounterState state) {
-    return {'count': state.counter};
   }
 }
