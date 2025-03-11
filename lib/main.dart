@@ -1,87 +1,67 @@
-import 'package:cubitstatemanagement/controller/cubit/task_bloc.dart';
-import 'package:cubitstatemanagement/controller/cubit/task_event.dart';
-import 'package:cubitstatemanagement/models/task_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
-void main() {
+import 'controller/cubit/counter_cubit.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  HydratedBloc.storage = await HydratedStorage.build(
+    storageDirectory:
+        HydratedStorageDirectory((await getTemporaryDirectory()).path),
+  );
+
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    return BlocProvider(
+      create: (_) => CounterCubit(),
+      child: const MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: CounterPage(),
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
 
-class MyHomePage extends StatelessWidget {
-  MyHomePage({super.key, required this.title});
+class CounterPage extends StatelessWidget {
+  const CounterPage({super.key});
 
-  final String title;
-  final TextEditingController controller = TextEditingController();
-
-  // void _incrementCounter() {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(title),
-      ),
-      body: BlocProvider(
-        create: (context) => TaskBloc(),
-        child: BlocBuilder<TaskBloc, TaskState>(
+      appBar: AppBar(title: const Text('Cubit Counter App')),
+      body: Center(
+        child: BlocBuilder<CounterCubit, CounterState>(
           builder: (context, state) {
-            return Column(
-              children: [
-                TextField(
-                  controller: controller,
-                  decoration: InputDecoration(hintText: 'Enter Task'),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                ElevatedButton(
-                    onPressed: () {
-                      if (controller.text.isEmpty) return;
-                      context
-                          .read<TaskBloc>()
-                          .add(AddTaskEvent(controller.text));
-                      controller.clear();
-                    },
-                    child: Text("Add Task")),
-                Expanded(
-                    child: ListView.builder(
-                  itemCount: state.tasksList.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return ListTile(
-                        title: Text(state.tasksList[index].title),
-                        leading: IconButton(
-                            onPressed: () {
-                              context.read<TaskBloc>().add(
-                                  RemoveTaskEvent(state.tasksList[index].id));
-                            },
-                            icon: Icon(Icons.delete)));
-                  },
-                ))
-              ],
+            return Text(
+              '${state.counter}',
+              style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
             );
           },
         ),
+      ),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          FloatingActionButton(
+            onPressed: () => context.read<CounterCubit>().increment(),
+            child: const Icon(Icons.add),
+          ),
+          FloatingActionButton(
+            onPressed: () => context.read<CounterCubit>().decrement(),
+            child: const Icon(Icons.remove),
+          ),
+        ],
       ),
     );
   }
