@@ -1,14 +1,18 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 part of 'counter_cubit.dart';
 
-sealed class CounterState {
-  final int counter;
-  const CounterState(this.counter);
-}
+class CounterState {
+  final int counterA;
+  final int counterB;
+  const CounterState({required this.counterA, required this.counterB});
 
-class CounterInitial extends CounterState {
-  CounterInitial() : super(0);
-}
-
-class CounterUpdated extends CounterState {
-  CounterUpdated(int counter) : super(counter);
+  CounterState copyWith({
+    int? counterA,
+    int? counterB,
+  }) {
+    return CounterState(
+      counterA: counterA ?? this.counterA,
+      counterB: counterB ?? this.counterB,
+    );
+  }
 }
